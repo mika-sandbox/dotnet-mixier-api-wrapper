@@ -1,0 +1,2 @@
+﻿This namespace "Frau.Models.Internal" SHOULD NOT be used outside of this library.
+Classes in this namespace is used by JSON.NET Deserialize.

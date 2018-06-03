@@ -5,6 +5,14 @@ VisualStudioVersion = 15.0.27703.2026
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Frau", "Frau\Frau.csproj", "{81CEE1DD-54CB-40CB-B853-528E2BD09FBF}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SolutionItems", "SolutionItems", "{069ACE11-12E8-42A5-82D9-638289FEB51E}"
+	ProjectSection(SolutionItems) = preProject
+		.gitattributes = .gitattributes
+		..\.gitignore = ..\.gitignore
+		..\LICENSE = ..\LICENSE
+		..\README.md = ..\README.md
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
