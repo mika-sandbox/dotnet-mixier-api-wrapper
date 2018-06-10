@@ -12,7 +12,7 @@ namespace Frau.Clients
 
         public async Task<List<Achievement>> LisyAstnc()
         {
-            return await MixerClient.GetAsync<List<Achievement>>("/achievements", MixerClient.EmptyParameter, false).Stay();
+            return await MixerClient.GetAsync<List<Achievement>>("/achievements", null, false).Stay();
         }
     }
 }

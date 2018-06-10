@@ -20,5 +20,10 @@ namespace Frau.Extensions
         {
             return obj.ConfigureAwait(false);
         }
+
+        public static ConfiguredTaskAwaitable Stay(this Task obj)
+        {
+            return obj.ConfigureAwait(false);
+        }
     }
 }

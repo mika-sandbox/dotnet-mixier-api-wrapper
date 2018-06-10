@@ -4,6 +4,8 @@
     {
         Json,
 
-        Multipart
+        Multipart,
+
+        NoContent
     }
 }

@@ -12,12 +12,12 @@ namespace Frau.Clients
 
         public async Task<Broadcast> CurrentAsync()
         {
-            return await MixerClient.GetAsync<Broadcast>("/broadcasts/current", MixerClient.EmptyParameter).Stay();
+            return await MixerClient.GetAsync<Broadcast>("/broadcasts/current").Stay();
         }
 
         public async Task<Broadcast> IdAsync(string uuid)
         {
-            return await MixerClient.GetAsync<Broadcast>($"/broadcasts/{uuid}", MixerClient.EmptyParameter, false).Stay();
+            return await MixerClient.GetAsync<Broadcast>($"/broadcasts/{uuid}", null, false).Stay();
         }
 
         public async Task<object> IdManifestAsync(string type)

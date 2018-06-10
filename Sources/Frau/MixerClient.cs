@@ -25,7 +25,6 @@ namespace Frau
         private readonly HttpClient _httpClient;
         internal string ClientId { get; }
         internal string ClientSecret { get; }
-        internal static List<KeyValuePair<string, string>> EmptyParameter => new List<KeyValuePair<string, string>>();
 
         /// <summary>
         ///     現在使用しているアクセストークン
@@ -46,12 +45,12 @@ namespace Frau
             Broadcasts = new BroadcastsClient(this);
         }
 
-        internal async Task<T> GetAsync<T>(string url, List<KeyValuePair<string, string>> parameters, bool requireAuth = true)
+        internal async Task<T> GetAsync<T>(string url, List<KeyValuePair<string, string>> parameters = null, bool requireAuth = true)
         {
             ProcessAuthHeader(requireAuth);
             url = BaseUrl + url;
 
-            if (parameters.Any())
+            if (parameters != null && parameters.Any())
                 url += "?" + string.Join("&", parameters.Select(w => $"{w.Key}={Uri.EscapeDataString(w.Value)}"));
             var response = await _httpClient.GetAsync(url).Stay();
             HandleErrors(response);
@@ -59,25 +58,71 @@ namespace Frau
             return JsonConvert.DeserializeObject<T>(await response.Content.ReadAsStringAsync().Stay());
         }
 
-        internal async Task<T> PostAsync<T>(string url, Parameters parameters, MediaType mediaType, bool requireAuth = true)
+        internal async Task PostAsync(string url, MediaType mediaType, Parameters parameters = null, bool requireAuth = true)
         {
-            return await SendAsync<T>(HttpMethod.Post, url, parameters, mediaType, requireAuth).Stay();
+            await SendAsync(HttpMethod.Post, url, mediaType, parameters, requireAuth).Stay();
         }
 
-        internal async Task<T> PutAsync<T>(string url, Parameters parameters, MediaType mediaType, bool requireAuth = true)
+        internal async Task<T> PostAsync<T>(string url, MediaType mediaType, Parameters parameters = null, bool requireAuth = true)
         {
-            return await SendAsync<T>(HttpMethod.Put, url, parameters, mediaType, requireAuth).Stay();
+            return await SendAsync<T>(HttpMethod.Post, url, mediaType, parameters, requireAuth).Stay();
         }
 
-        internal async Task<T> DeleteAsync<T>(string url, Parameters parameters, MediaType mediaType, bool requireAuth = true)
+        internal async Task PutAsync(string url, MediaType mediaType, Parameters parameters = null, bool requireAuth = true)
         {
-            return await SendAsync<T>(HttpMethod.Delete, url, parameters, mediaType, requireAuth).Stay();
+            await SendAsync(HttpMethod.Put, url, mediaType, parameters, requireAuth).Stay();
         }
 
-        private async Task<T> SendAsync<T>(HttpMethod method, string url, Parameters parameters, MediaType mediaType, bool requireAuth = true)
+        internal async Task<T> PutAsync<T>(string url, MediaType mediaType, Parameters parameters = null, bool requireAuth = true)
+        {
+            return await SendAsync<T>(HttpMethod.Put, url, mediaType, parameters, requireAuth).Stay();
+        }
+
+        internal async Task DeleteAsync(string url, MediaType mediaType, Parameters parameters = null, bool requireAuth = true)
+        {
+            await SendAsync(HttpMethod.Delete, url, mediaType, parameters, requireAuth).Stay();
+        }
+
+        internal async Task<T> DeleteAsync<T>(string url, MediaType mediaType, Parameters parameters = null, bool requireAuth = true)
+        {
+            return await SendAsync<T>(HttpMethod.Delete, url, mediaType, parameters, requireAuth).Stay();
+        }
+
+        private async Task SendAsync(HttpMethod method, string url, MediaType mediaType, Parameters parameters = null, bool requireAuth = true)
         {
             ProcessAuthHeader(requireAuth);
 
+            var content = PrepareHttpContent(parameters, mediaType);
+            var response = await _httpClient.SendAsync(new HttpRequestMessage(method, BaseUrl + url) {Content = content}).Stay();
+            HandleErrors(response);
+        }
+
+        private async Task<T> SendAsync<T>(HttpMethod method, string url, MediaType mediaType, Parameters parameters = null, bool requireAuth = true)
+        {
+            ProcessAuthHeader(requireAuth);
+
+            var content = PrepareHttpContent(parameters, mediaType);
+            var response = await _httpClient.SendAsync(new HttpRequestMessage(method, BaseUrl + url) {Content = content}).Stay();
+            HandleErrors(response);
+
+            return JsonConvert.DeserializeObject<T>(await response.Content.ReadAsStringAsync().Stay());
+        }
+
+        private void ProcessAuthHeader(bool requireAuth)
+        {
+            if (!string.IsNullOrWhiteSpace(AccessToken))
+            {
+                _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", AccessToken);
+            }
+            else
+            {
+                if (requireAuth)
+                    throw new AuthenticationException("Invalid AccessToken.");
+            }
+        }
+
+        private static HttpContent PrepareHttpContent(Parameters parameters, MediaType mediaType)
+        {
             HttpContent content;
             switch (mediaType)
             {
@@ -101,27 +146,15 @@ namespace Frau
                         }
                     break;
 
+                case MediaType.NoContent:
+                    // No Content
+                    content = null;
+                    break;
+
                 default:
                     throw new ArgumentOutOfRangeException(nameof(mediaType), mediaType, null);
             }
-
-            var response = await _httpClient.SendAsync(new HttpRequestMessage(method, BaseUrl + url) {Content = content}).Stay();
-            HandleErrors(response);
-
-            return JsonConvert.DeserializeObject<T>(await response.Content.ReadAsStringAsync().Stay());
-        }
-
-        private void ProcessAuthHeader(bool requireAuth)
-        {
-            if (!string.IsNullOrWhiteSpace(AccessToken))
-            {
-                _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", AccessToken);
-            }
-            else
-            {
-                if (requireAuth)
-                    throw new AuthenticationException("Invalid AccessToken.");
-            }
+            return content;
         }
 
         private static void HandleErrors(HttpResponseMessage response)
