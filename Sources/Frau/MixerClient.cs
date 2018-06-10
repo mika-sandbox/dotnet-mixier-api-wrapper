@@ -33,6 +33,7 @@ namespace Frau
         public string AccessToken { get; internal set; }
 
         public AchievementsClient Achievements { get; }
+        public BroadcastsClient Broadcasts { get; }
 
         public MixerClient(string clientId, string clientSecret)
         {
@@ -42,6 +43,7 @@ namespace Frau
             _httpClient = new HttpClient();
 
             Achievements = new AchievementsClient(this);
+            Broadcasts = new BroadcastsClient(this);
         }
 
         internal async Task<T> GetAsync<T>(string url, List<KeyValuePair<string, string>> parameters, bool requireAuth = true)
