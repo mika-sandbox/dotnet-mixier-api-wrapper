@@ -10,7 +10,9 @@ using System.Threading.Tasks;
 
 using Frau.Clients;
 using Frau.Enum;
+using Frau.Exceptions;
 using Frau.Extensions;
+using Frau.Models.Flow;
 
 using Newtonsoft.Json;
 
@@ -55,7 +57,7 @@ namespace Frau
             if (parameters != null && parameters.Any())
                 url += "?" + string.Join("&", parameters.Select(w => $"{w.Key}={Uri.EscapeDataString(w.Value)}"));
             var response = await _httpClient.GetAsync(url).Stay();
-            HandleErrors(response);
+            await HandleErrors(response);
 
             return JsonConvert.DeserializeObject<T>(await response.Content.ReadAsStringAsync().Stay());
         }
@@ -96,7 +98,7 @@ namespace Frau
 
             var content = PrepareHttpContent(parameters, mediaType);
             var response = await _httpClient.SendAsync(new HttpRequestMessage(method, BaseUrl + url) {Content = content}).Stay();
-            HandleErrors(response);
+            await HandleErrors(response);
         }
 
         private async Task<T> SendAsync<T>(HttpMethod method, string url, MediaType mediaType, object parameters = null, bool requireAuth = true)
@@ -105,7 +107,7 @@ namespace Frau
 
             var content = PrepareHttpContent(parameters, mediaType);
             var response = await _httpClient.SendAsync(new HttpRequestMessage(method, BaseUrl + url) {Content = content}).Stay();
-            HandleErrors(response);
+            await HandleErrors(response);
 
             return JsonConvert.DeserializeObject<T>(await response.Content.ReadAsStringAsync().Stay());
         }
@@ -130,14 +132,25 @@ namespace Frau
             {
                 case MediaType.Json:
                     // object (as a Model) and List<KeyValuePair<string, object>> support.
-                    content = new StringContent(JsonConvert.SerializeObject(parameters), Encoding.UTF8, "application/json");
+                    object obj;
+                    if (parameters is Parameters params1)
+                    {
+                        var dictionary = new Dictionary<string, string>();
+                        params1.ForEach(w => dictionary.Add(w.Key, w.Value.ToString()));
+                        obj = dictionary;
+                    }
+                    else
+                    {
+                        obj = parameters;
+                    }
+                    content = new StringContent(JsonConvert.SerializeObject(obj), Encoding.UTF8, "application/json");
                     break;
 
                 case MediaType.Multipart:
-                    if (parameters is Parameters parametersKvp)
+                    if (parameters is Parameters params2)
                     {
                         content = new MultipartFormDataContent();
-                        foreach (var parameter in parametersKvp)
+                        foreach (var parameter in params2)
                             if (parameter.Value is Stream stream)
                             {
                                 var binary = new StreamContent(stream);
@@ -167,11 +180,19 @@ namespace Frau
             return content;
         }
 
-        private static void HandleErrors(HttpResponseMessage response)
+        private static async Task HandleErrors(HttpResponseMessage response)
         {
             if (response.IsSuccessStatusCode)
                 return;
-            response.EnsureSuccessStatusCode();
+            var content = await response.Content.ReadAsStringAsync();
+            try
+            {
+                response.EnsureSuccessStatusCode();
+            }
+            catch (Exception e)
+            {
+                throw new FrauException(JsonConvert.DeserializeObject<ErrorResponse>(content), response.StatusCode.ToString(), e);
+            }
         }
     }
 }

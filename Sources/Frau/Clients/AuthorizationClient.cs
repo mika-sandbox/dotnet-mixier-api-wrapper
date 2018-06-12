@@ -47,15 +47,15 @@ namespace Frau.Clients
             return await MixerClient.PostAsync<Tokens>("/oauth/token", MediaType.Json, parameters, false).Stay();
         }
 
-        public async Task<Shortcode> ShortcodeAsync(string clientId, string clientSecret, string scope)
+        public async Task<Shortcode> ShortcodeAsync(string scope)
         {
             var parameters = new List<KeyValuePair<string, object>>
             {
-                new KeyValuePair<string, object>("client_id", clientId),
+                new KeyValuePair<string, object>("client_id", MixerClient.ClientId),
                 new KeyValuePair<string, object>("scope", scope)
             };
-            if (!string.IsNullOrWhiteSpace(clientSecret))
-                parameters.Add(new KeyValuePair<string, object>("client_secret", clientSecret));
+            if (!string.IsNullOrWhiteSpace(MixerClient.ClientSecret))
+                parameters.Add(new KeyValuePair<string, object>("client_secret", MixerClient.ClientSecret));
 
             return await MixerClient.PostAsync<Shortcode>("/oauth/shortcode", MediaType.Json, parameters, false).Stay();
         }
