@@ -24,3 +24,24 @@ await mixerClient.OAuth.Clients.ShowAsync(client);
 // DELETE        /oauth/authorized/{client}
 await mixerClient.OAuth.Authorized.RevokeAsync(client);
 ```
+
+
+Short sample for OAuth.
+
+```csharp
+var mixerClient = new MixerClient("CLIENT_ID", "CLIENT_SECRET");
+
+var shortcode = await mixerClient.OAuth.ShortcodeAsync("channel:analytics:self");
+Process.Start("https://mixer.com/go");
+Shortcode pooling;
+
+do
+{
+	pooling = await mixerClient.OAuth.Shortcode.CheckAsync(shortcode.Handle);
+	await Task.Delay(TimeSpan.FromSeconds(1));
+} 
+while (pooling == null);
+
+var tokens = await mixerClient.OAuth.TokenAsync("authorization_code", "", pooling.Code, "");
+tokens.Dump();
+```
