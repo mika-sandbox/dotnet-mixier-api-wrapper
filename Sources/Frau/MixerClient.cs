@@ -33,6 +33,7 @@ namespace Frau
 
         public AchievementsClient Achievements { get; }
         public BroadcastsClient Broadcasts { get; }
+        public AuthorizationClient OAuth { get; }
 
         public MixerClient(string clientId, string clientSecret)
         {
@@ -43,6 +44,7 @@ namespace Frau
 
             Achievements = new AchievementsClient(this);
             Broadcasts = new BroadcastsClient(this);
+            OAuth = new AuthorizationClient(this);
         }
 
         internal async Task<T> GetAsync<T>(string url, List<KeyValuePair<string, string>> parameters = null, bool requireAuth = true)
@@ -58,37 +60,37 @@ namespace Frau
             return JsonConvert.DeserializeObject<T>(await response.Content.ReadAsStringAsync().Stay());
         }
 
-        internal async Task PostAsync(string url, MediaType mediaType, Parameters parameters = null, bool requireAuth = true)
+        internal async Task PostAsync(string url, MediaType mediaType, object parameters = null, bool requireAuth = true)
         {
             await SendAsync(HttpMethod.Post, url, mediaType, parameters, requireAuth).Stay();
         }
 
-        internal async Task<T> PostAsync<T>(string url, MediaType mediaType, Parameters parameters = null, bool requireAuth = true)
+        internal async Task<T> PostAsync<T>(string url, MediaType mediaType, object parameters = null, bool requireAuth = true)
         {
             return await SendAsync<T>(HttpMethod.Post, url, mediaType, parameters, requireAuth).Stay();
         }
 
-        internal async Task PutAsync(string url, MediaType mediaType, Parameters parameters = null, bool requireAuth = true)
+        internal async Task PutAsync(string url, MediaType mediaType, object parameters = null, bool requireAuth = true)
         {
             await SendAsync(HttpMethod.Put, url, mediaType, parameters, requireAuth).Stay();
         }
 
-        internal async Task<T> PutAsync<T>(string url, MediaType mediaType, Parameters parameters = null, bool requireAuth = true)
+        internal async Task<T> PutAsync<T>(string url, MediaType mediaType, object parameters = null, bool requireAuth = true)
         {
             return await SendAsync<T>(HttpMethod.Put, url, mediaType, parameters, requireAuth).Stay();
         }
 
-        internal async Task DeleteAsync(string url, MediaType mediaType, Parameters parameters = null, bool requireAuth = true)
+        internal async Task DeleteAsync(string url, MediaType mediaType, object parameters = null, bool requireAuth = true)
         {
             await SendAsync(HttpMethod.Delete, url, mediaType, parameters, requireAuth).Stay();
         }
 
-        internal async Task<T> DeleteAsync<T>(string url, MediaType mediaType, Parameters parameters = null, bool requireAuth = true)
+        internal async Task<T> DeleteAsync<T>(string url, MediaType mediaType, object parameters = null, bool requireAuth = true)
         {
             return await SendAsync<T>(HttpMethod.Delete, url, mediaType, parameters, requireAuth).Stay();
         }
 
-        private async Task SendAsync(HttpMethod method, string url, MediaType mediaType, Parameters parameters = null, bool requireAuth = true)
+        private async Task SendAsync(HttpMethod method, string url, MediaType mediaType, object parameters = null, bool requireAuth = true)
         {
             ProcessAuthHeader(requireAuth);
 
@@ -97,7 +99,7 @@ namespace Frau
             HandleErrors(response);
         }
 
-        private async Task<T> SendAsync<T>(HttpMethod method, string url, MediaType mediaType, Parameters parameters = null, bool requireAuth = true)
+        private async Task<T> SendAsync<T>(HttpMethod method, string url, MediaType mediaType, object parameters = null, bool requireAuth = true)
         {
             ProcessAuthHeader(requireAuth);
 
@@ -121,29 +123,37 @@ namespace Frau
             }
         }
 
-        private static HttpContent PrepareHttpContent(Parameters parameters, MediaType mediaType)
+        private static HttpContent PrepareHttpContent(object parameters, MediaType mediaType)
         {
             HttpContent content;
             switch (mediaType)
             {
                 case MediaType.Json:
+                    // object (as a Model) and List<KeyValuePair<string, object>> support.
                     content = new StringContent(JsonConvert.SerializeObject(parameters), Encoding.UTF8, "application/json");
                     break;
 
                 case MediaType.Multipart:
-                    content = new MultipartFormDataContent();
-                    foreach (var parameter in parameters)
-                        if (parameter.Value is Stream stream)
-                        {
-                            var binary = new StreamContent(stream);
-                            binary.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
-                            binary.Headers.ContentDisposition = new ContentDispositionHeaderValue("form-data");
-                            ((MultipartFormDataContent) content).Add(binary, parameter.Key);
-                        }
-                        else
-                        {
-                            ((MultipartFormDataContent) content).Add(new StringContent(parameter.Value.ToString()), parameter.Key);
-                        }
+                    if (parameters is Parameters parametersKvp)
+                    {
+                        content = new MultipartFormDataContent();
+                        foreach (var parameter in parametersKvp)
+                            if (parameter.Value is Stream stream)
+                            {
+                                var binary = new StreamContent(stream);
+                                binary.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
+                                binary.Headers.ContentDisposition = new ContentDispositionHeaderValue("form-data");
+                                ((MultipartFormDataContent) content).Add(binary, parameter.Key);
+                            }
+                            else
+                            {
+                                ((MultipartFormDataContent) content).Add(new StringContent(parameter.Value.ToString()), parameter.Key);
+                            }
+                    }
+                    else
+                    {
+                        throw new NotSupportedException($"Multipart supports {typeof(List<KeyValuePair<string, object>>)} only");
+                    }
                     break;
 
                 case MediaType.NoContent:
