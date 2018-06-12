@@ -33,6 +33,8 @@ namespace Frau
         /// </summary>
         public string AccessToken { get; internal set; }
 
+        public string RefreshToken { get; internal set; }
+
         public AchievementsClient Achievements { get; }
         public BroadcastsClient Broadcasts { get; }
         public AuthorizationClient OAuth { get; }

@@ -44,7 +44,11 @@ namespace Frau.Clients
             if (!string.IsNullOrWhiteSpace(redirectUri))
                 parameters.Add(new KeyValuePair<string, object>("redirect_uri", redirectUri));
 
-            return await MixerClient.PostAsync<Tokens>("/oauth/token", MediaType.Json, parameters, false).Stay();
+            var tokens = await MixerClient.PostAsync<Tokens>("/oauth/token", MediaType.Json, parameters, false).Stay();
+            MixerClient.AccessToken = tokens.AccessToken;
+            MixerClient.RefreshToken = tokens.RefreshToken;
+
+            return tokens;
         }
 
         public async Task<Shortcode> ShortcodeAsync(string scope)
