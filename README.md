@@ -8,9 +8,7 @@ Frau provides same APIs as a document.
 I will be careful to be as intuitive method names as possible.
 
 ```csharp
-using Frau;
-
-var mixerClient = new Frau("", "");
+var mixerClient = new MixerClient("CLIENT_ID", "CLIENT_SECRET");
 
 // GET           /interactive/games/owned
 await mixerClient.Interactive.Games.OwnedAsync(user);
@@ -37,8 +35,8 @@ Shortcode pooling;
 
 do
 {
-	pooling = await mixerClient.OAuth.Shortcode.CheckAsync(shortcode.Handle);
-	await Task.Delay(TimeSpan.FromSeconds(1));
+    pooling = await mixerClient.OAuth.Shortcode.CheckAsync(shortcode.Handle);
+    await Task.Delay(TimeSpan.FromSeconds(1));
 } 
 while (pooling == null);
 
