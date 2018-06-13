@@ -74,13 +74,13 @@ namespace Frau.Models
         public uint? ThumbnailId { get; set; }
 
         [JsonProperty("badgeId")]
-        public uint BadgeId { get; set; }
+        public uint? BadgeId { get; set; } /* Nullable? */
 
         [JsonProperty("bannerUrl")]
         public string BannerUrl { get; set; }
 
         [JsonProperty("hosteeId")]
-        public uint HosteeId { get; set; }
+        public uint? HosteeId { get; set; } /* Nullable? */
 
         [JsonProperty("hasTranscodes")]
         public bool HasTranscodes { get; set; }

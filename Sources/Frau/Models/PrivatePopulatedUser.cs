@@ -14,5 +14,8 @@ namespace Frau.Models
 
         [JsonProperty("preferences")]
         public UserPreferences Preferences { get; set; }
+
+        [JsonProperty("storeSettings")]
+        public StoreSettings StoreSettings { get; set; }
     }
 }

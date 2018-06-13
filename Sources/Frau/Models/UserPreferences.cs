@@ -1,4 +1,6 @@
-﻿using Frau.Models.Internal;
+﻿using System.Collections.Generic;
+
+using Frau.Models.Internal;
 
 using Newtonsoft.Json;
 
@@ -10,7 +12,7 @@ namespace Frau.Models
         public bool? ChatSoundsHtml5 { get; set; }
 
         [JsonProperty("chat:sounds:play")]
-        public bool? ChatSoundsPlay { get; set; }
+        public string ChatSoundsPlay { get; set; }
 
         [JsonProperty("chat:whispers")]
         public bool? ChatWhispers { get; set; }
@@ -41,5 +43,11 @@ namespace Frau.Models
 
         [JsonProperty("channel:player:forceflash")]
         public bool? ChannelPlayerForceFlash { get; set; }
+
+        [JsonProperty("chat:ignoredUsers")]
+        public List<string> ChatIgnoredUsers { get; }
+
+        [JsonProperty("channel:chatfilter:threshold")]
+        public int ChannelChatfilterThreshold { get; set; }
     }
 }
