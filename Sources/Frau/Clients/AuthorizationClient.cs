@@ -51,12 +51,12 @@ namespace Frau.Clients
             return tokens;
         }
 
-        public async Task<Shortcode> ShortcodeAsync(string scope)
+        public async Task<Shortcode> ShortcodeAsync(Scopes scopes)
         {
             var parameters = new List<KeyValuePair<string, object>>
             {
                 new KeyValuePair<string, object>("client_id", MixerClient.ClientId),
-                new KeyValuePair<string, object>("scope", scope)
+                new KeyValuePair<string, object>("scope", scopes.GetAttributeValue())
             };
             if (!string.IsNullOrWhiteSpace(MixerClient.ClientSecret))
                 parameters.Add(new KeyValuePair<string, object>("client_secret", MixerClient.ClientSecret));
