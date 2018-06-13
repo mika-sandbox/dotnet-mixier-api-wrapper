@@ -138,7 +138,7 @@ namespace Frau.Extensions
             if ((obj & Scopes.UserUpdatePasswordSelf) == Scopes.UserUpdatePasswordSelf)
                 scopes.Add(Scopes.UserUpdatePasswordSelf.GetAttributeValue());
 
-            return string.Join(",", scopes);
+            return string.Join(" ", scopes);
         }
     }
 }

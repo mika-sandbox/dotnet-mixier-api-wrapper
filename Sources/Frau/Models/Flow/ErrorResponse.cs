@@ -9,5 +9,11 @@ namespace Frau.Models.Flow
 
         [JsonProperty("error_description")]
         public string ErrorDescription { get; set; }
+
+        [JsonProperty("message")]
+        public string Message { get; set; }
+
+        [JsonProperty("statusCode")]
+        public int StatusCode { get; set; }
     }
 }

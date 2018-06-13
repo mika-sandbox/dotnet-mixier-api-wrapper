@@ -302,7 +302,7 @@ namespace Frau.Enum
         UserAnalyticsSelf = 1L << 48,
 
         /// <summary>
-        ///     user:details:self
+        ///     user:details
         /// </summary>
         [Scope("user:details:self")]
         UserDetailsSelf = 1L << 49,

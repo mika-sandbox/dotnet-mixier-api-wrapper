@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 
 using Frau.Enum;
 using Frau.Extensions;
@@ -10,9 +11,13 @@ namespace Frau.Clients.Authorization
     {
         public TokenClient(MixerClient client) : base(client) { }
 
-        public async Task<Introspect> IntrospectAsync()
+        public async Task<Introspect> IntrospectAsync(string token)
         {
-            return await MixerClient.PostAsync<Introspect>("/oauth/token/introspect", MediaType.NoContent, null, false).Stay();
+            var parameters = new List<KeyValuePair<string, object>>
+            {
+                new KeyValuePair<string, object>("token", token)
+            };
+            return await MixerClient.PostAsync<Introspect>("/oauth/token/introspect", MediaType.Json, parameters, false).Stay();
         }
     }
 }

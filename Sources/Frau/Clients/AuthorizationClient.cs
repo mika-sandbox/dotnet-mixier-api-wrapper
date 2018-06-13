@@ -34,9 +34,10 @@ namespace Frau.Clients
             var parameters = new List<KeyValuePair<string, object>>
             {
                 new KeyValuePair<string, object>("grant_type", grantType),
-                new KeyValuePair<string, object>("client_id", MixerClient.ClientId),
-                new KeyValuePair<string, object>("client_secret", MixerClient.ClientSecret)
+                new KeyValuePair<string, object>("client_id", MixerClient.ClientId)
             };
+            if (!string.IsNullOrWhiteSpace(MixerClient.ClientSecret))
+                parameters.Add(new KeyValuePair<string, object>("client_secret", MixerClient.ClientSecret));
             if (!string.IsNullOrWhiteSpace(refreshToken))
                 parameters.Add(new KeyValuePair<string, object>("refresh_token", refreshToken));
             if (!string.IsNullOrWhiteSpace(code))
@@ -56,7 +57,7 @@ namespace Frau.Clients
             var parameters = new List<KeyValuePair<string, object>>
             {
                 new KeyValuePair<string, object>("client_id", MixerClient.ClientId),
-                new KeyValuePair<string, object>("scope", scopes.GetAttributeValue())
+                new KeyValuePair<string, object>("scope", scopes.ToScopeString())
             };
             if (!string.IsNullOrWhiteSpace(MixerClient.ClientSecret))
                 parameters.Add(new KeyValuePair<string, object>("client_secret", MixerClient.ClientSecret));

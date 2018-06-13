@@ -12,7 +12,6 @@ using Frau.Clients;
 using Frau.Enum;
 using Frau.Exceptions;
 using Frau.Extensions;
-using Frau.Models.Flow;
 
 using Newtonsoft.Json;
 
@@ -195,7 +194,7 @@ namespace Frau
             }
             catch (Exception e)
             {
-                throw new FrauException(JsonConvert.DeserializeObject<ErrorResponse>(content), response.StatusCode.ToString(), e);
+                throw new FrauException(content, response.StatusCode.ToString(), e);
             }
         }
     }

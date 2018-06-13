@@ -29,7 +29,7 @@ Short sample for OAuth.
 ```csharp
 var mixerClient = new MixerClient("CLIENT_ID", "CLIENT_SECRET");
 
-var shortcode = await mixerClient.OAuth.ShortcodeAsync("channel:analytics:self");
+var shortcode = await mixerClient.OAuth.ShortcodeAsync(Scopes.ChannelDetailsSelf);
 Process.Start("https://mixer.com/go");
 Shortcode pooling;
 
