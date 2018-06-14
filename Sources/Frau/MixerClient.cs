@@ -99,6 +99,16 @@ namespace Frau
             return await SendAsync<T>(HttpMethod.Put, url, mediaType, parameters, requireAuth).Stay();
         }
 
+        internal async Task PatchAsync(string url, MediaType mediaType, object parameters = null, bool requireAuth = true)
+        {
+            await SendAsync(new HttpMethod("PATCH"), url, mediaType, parameters, requireAuth).Stay();
+        }
+
+        internal async Task<T> PatchAsync<T>(string url, MediaType mediaType, object parameters = null, bool requireAuth = true) where T : class
+        {
+            return await SendAsync<T>(new HttpMethod("PATCH"), url, mediaType, parameters, requireAuth).Stay();
+        }
+
         internal async Task DeleteAsync(string url, MediaType mediaType, object parameters = null, bool requireAuth = true)
         {
             await SendAsync(HttpMethod.Delete, url, mediaType, parameters, requireAuth).Stay();
