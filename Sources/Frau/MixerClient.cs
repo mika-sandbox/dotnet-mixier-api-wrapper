@@ -12,6 +12,8 @@ using Frau.Clients;
 using Frau.Enum;
 using Frau.Exceptions;
 using Frau.Extensions;
+using Frau.Helpers;
+using Frau.Models.Flow;
 
 using Newtonsoft.Json;
 
@@ -38,6 +40,7 @@ namespace Frau
         public BroadcastsClient Broadcasts { get; }
         public AuthorizationClient OAuth { get; }
         public FrontendVersionsClient FrontendVersions { get; }
+        public UsersClient Users { get; }
 
         public MixerClient(string clientId, string clientSecret)
         {
@@ -50,9 +53,10 @@ namespace Frau
             Broadcasts = new BroadcastsClient(this);
             FrontendVersions = new FrontendVersionsClient(this);
             OAuth = new AuthorizationClient(this);
+            Users = new UsersClient(this);
         }
 
-        internal async Task<T> GetAsync<T>(string url, List<KeyValuePair<string, string>> parameters = null, bool requireAuth = true)
+        internal async Task<T> GetAsync<T>(string url, List<KeyValuePair<string, string>> parameters = null, bool requireAuth = true) where T : class
         {
             ProcessAuthHeader(requireAuth);
             url = BaseUrl + url;
@@ -62,7 +66,10 @@ namespace Frau
             var response = await _httpClient.GetAsync(url).Stay();
             await HandleErrors(response);
 
-            return JsonConvert.DeserializeObject<T>(await response.Content.ReadAsStringAsync().Stay());
+            var obj = JsonConvert.DeserializeObject<T>(await response.Content.ReadAsStringAsync().Stay());
+            if (typeof(T).IsGenericType && typeof(T).GetGenericTypeDefinition() == typeof(Pagenator<>))
+                return ProcessResponseHeader(response.Headers, obj);
+            return obj;
         }
 
         internal async Task PostAsync(string url, MediaType mediaType, object parameters = null, bool requireAuth = true)
@@ -70,7 +77,7 @@ namespace Frau
             await SendAsync(HttpMethod.Post, url, mediaType, parameters, requireAuth).Stay();
         }
 
-        internal async Task<T> PostAsync<T>(string url, MediaType mediaType, object parameters = null, bool requireAuth = true)
+        internal async Task<T> PostAsync<T>(string url, MediaType mediaType, object parameters = null, bool requireAuth = true) where T : class
         {
             return await SendAsync<T>(HttpMethod.Post, url, mediaType, parameters, requireAuth).Stay();
         }
@@ -80,7 +87,7 @@ namespace Frau
             await SendAsync(HttpMethod.Put, url, mediaType, parameters, requireAuth).Stay();
         }
 
-        internal async Task<T> PutAsync<T>(string url, MediaType mediaType, object parameters = null, bool requireAuth = true)
+        internal async Task<T> PutAsync<T>(string url, MediaType mediaType, object parameters = null, bool requireAuth = true) where T : class
         {
             return await SendAsync<T>(HttpMethod.Put, url, mediaType, parameters, requireAuth).Stay();
         }
@@ -90,7 +97,7 @@ namespace Frau
             await SendAsync(HttpMethod.Delete, url, mediaType, parameters, requireAuth).Stay();
         }
 
-        internal async Task<T> DeleteAsync<T>(string url, MediaType mediaType, object parameters = null, bool requireAuth = true)
+        internal async Task<T> DeleteAsync<T>(string url, MediaType mediaType, object parameters = null, bool requireAuth = true) where T : class
         {
             return await SendAsync<T>(HttpMethod.Delete, url, mediaType, parameters, requireAuth).Stay();
         }
@@ -105,6 +112,7 @@ namespace Frau
         }
 
         private async Task<T> SendAsync<T>(HttpMethod method, string url, MediaType mediaType, object parameters = null, bool requireAuth = true)
+            where T : class
         {
             ProcessAuthHeader(requireAuth);
 
@@ -112,7 +120,10 @@ namespace Frau
             var response = await _httpClient.SendAsync(new HttpRequestMessage(method, BaseUrl + url) {Content = content}).Stay();
             await HandleErrors(response);
 
-            return JsonConvert.DeserializeObject<T>(await response.Content.ReadAsStringAsync().Stay());
+            var obj = JsonConvert.DeserializeObject<T>(await response.Content.ReadAsStringAsync().Stay());
+            if (typeof(T).IsGenericType && typeof(T).GetGenericTypeDefinition() == typeof(Pagenator<>))
+                return ProcessResponseHeader(response.Headers, obj);
+            return obj;
         }
 
         private void ProcessAuthHeader(bool requireAuth)
@@ -196,6 +207,27 @@ namespace Frau
             {
                 throw new FrauException(content, response.StatusCode.ToString(), e);
             }
+        }
+
+        private T ProcessResponseHeader<T>(HttpResponseHeaders headers, T body) where T : class
+        {
+            var pagenator = Activator.CreateInstance<T>() as IPagenator;
+            if (pagenator == null)
+                throw new NullReferenceException();
+            pagenator.Body = body;
+
+            // Link:
+            var linkHeader = headers.GetValues("link").FirstOrDefault();
+            var linking = LinkHeaderParser.Parse(linkHeader);
+            pagenator.First = linking.FirstOrDefault(w => w.Rel == "first")?.Uri;
+            pagenator.Next = linking.FirstOrDefault(w => w.Rel == "next")?.Uri;
+            pagenator.Prev = linking.FirstOrDefault(w => w.Rel == "prev")?.Uri;
+            pagenator.Last = linking.FirstOrDefault(w => w.Rel == "last")?.Uri;
+
+            // x-total-count:
+            var totalCount = headers.GetValues("x-total-count").FirstOrDefault();
+            pagenator.Total = string.IsNullOrWhiteSpace(totalCount) ? 0 : uint.Parse(totalCount);
+            return pagenator as T;
         }
     }
 }
