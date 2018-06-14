@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Reflection;
 using System.Security.Authentication;
 using System.Text;
 using System.Threading.Tasks;
@@ -26,6 +27,10 @@ namespace Frau
     {
         private const string BaseUrl = "https://mixer.com/api/v1";
         private readonly HttpClient _httpClient;
+
+        // ReSharper disable once InconsistentNaming
+        private readonly MethodInfo DeserializeObject;
+
         internal string ClientId { get; }
         internal string ClientSecret { get; }
 
@@ -48,6 +53,9 @@ namespace Frau
             ClientSecret = clientSecret;
 
             _httpClient = new HttpClient();
+            DeserializeObject = typeof(JsonConvert).GetMethods(BindingFlags.Public | BindingFlags.Static)
+                                                   .Where(w => w.Name == "DeserializeObject")
+                                                   .First(w => w.IsGenericMethod && w.IsGenericMethodDefinition);
 
             Achievements = new AchievementsClient(this);
             Broadcasts = new BroadcastsClient(this);
@@ -66,10 +74,9 @@ namespace Frau
             var response = await _httpClient.GetAsync(url).Stay();
             await HandleErrors(response);
 
-            var obj = JsonConvert.DeserializeObject<T>(await response.Content.ReadAsStringAsync().Stay());
             if (typeof(T).IsGenericType && typeof(T).GetGenericTypeDefinition() == typeof(Pagenator<>))
-                return ProcessResponseHeader(response.Headers, obj);
-            return obj;
+                return await ProcessResponseWithHeader<T>(response);
+            return JsonConvert.DeserializeObject<T>(await response.Content.ReadAsStringAsync().Stay());
         }
 
         internal async Task PostAsync(string url, MediaType mediaType, object parameters = null, bool requireAuth = true)
@@ -120,10 +127,9 @@ namespace Frau
             var response = await _httpClient.SendAsync(new HttpRequestMessage(method, BaseUrl + url) {Content = content}).Stay();
             await HandleErrors(response);
 
-            var obj = JsonConvert.DeserializeObject<T>(await response.Content.ReadAsStringAsync().Stay());
             if (typeof(T).IsGenericType && typeof(T).GetGenericTypeDefinition() == typeof(Pagenator<>))
-                return ProcessResponseHeader(response.Headers, obj);
-            return obj;
+                return await ProcessResponseWithHeader<T>(response);
+            return JsonConvert.DeserializeObject<T>(await response.Content.ReadAsStringAsync().Stay());
         }
 
         private void ProcessAuthHeader(bool requireAuth)
@@ -209,23 +215,28 @@ namespace Frau
             }
         }
 
-        private T ProcessResponseHeader<T>(HttpResponseHeaders headers, T body) where T : class
+        private async Task<T> ProcessResponseWithHeader<T>(HttpResponseMessage response) where T : class
         {
+            // Create Pagenator instance
             var pagenator = Activator.CreateInstance<T>() as IPagenator;
             if (pagenator == null)
                 throw new NullReferenceException();
-            pagenator.Body = body;
 
-            // Link:
-            var linkHeader = headers.GetValues("link").FirstOrDefault();
+            // Deserialize JSON object
+            var content = await response.Content.ReadAsStringAsync();
+            var jsonObj = DeserializeObject.MakeGenericMethod(typeof(T).GenericTypeArguments[0]).Invoke(null, new object[] {content});
+            pagenator.Body = jsonObj;
+
+            // Parse "Link" header
+            var linkHeader = response.Headers.GetValues("link").FirstOrDefault();
             var linking = LinkHeaderParser.Parse(linkHeader);
             pagenator.First = linking.FirstOrDefault(w => w.Rel == "first")?.Uri;
             pagenator.Next = linking.FirstOrDefault(w => w.Rel == "next")?.Uri;
             pagenator.Prev = linking.FirstOrDefault(w => w.Rel == "prev")?.Uri;
             pagenator.Last = linking.FirstOrDefault(w => w.Rel == "last")?.Uri;
 
-            // x-total-count:
-            var totalCount = headers.GetValues("x-total-count").FirstOrDefault();
+            // Parse "X-Total-Count" header
+            var totalCount = response.Headers.GetValues("x-total-count").FirstOrDefault();
             pagenator.Total = string.IsNullOrWhiteSpace(totalCount) ? 0 : uint.Parse(totalCount);
             return pagenator as T;
         }
