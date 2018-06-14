@@ -59,7 +59,7 @@ namespace Frau.Models
         public uint? InteractiveGameId { get; set; }
 
         [JsonProperty("ftl")]
-        public uint Ftl { get; set; }
+        public int Ftl { get; set; }
 
         [JsonProperty("hasVod")]
         public bool HasVod { get; set; }
