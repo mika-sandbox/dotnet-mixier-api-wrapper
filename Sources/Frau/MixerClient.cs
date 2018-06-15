@@ -79,6 +79,19 @@ namespace Frau
             return JsonConvert.DeserializeObject<T>(await response.Content.ReadAsStringAsync().Stay());
         }
 
+        internal async Task<Stream> GetAsync(string url, List<KeyValuePair<string, string>> parameters = null, bool requireAuth = true)
+        {
+            ProcessAuthHeader(requireAuth);
+            url = BaseUrl + url;
+
+            if (parameters != null && parameters.Any())
+                url += "?" + string.Join("&", parameters.Select(w => $"{w.Key}={Uri.EscapeDataString(w.Value)}"));
+            var response = await _httpClient.GetAsync(url).Stay();
+            await HandleErrors(response);
+
+            return await response.Content.ReadAsStreamAsync();
+        }
+
         internal async Task PostAsync(string url, MediaType mediaType, object parameters = null, bool requireAuth = true)
         {
             await SendAsync(HttpMethod.Post, url, mediaType, parameters, requireAuth).Stay();
