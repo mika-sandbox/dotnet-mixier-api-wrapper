@@ -11,7 +11,7 @@ namespace Frau.Models
         public bool Earned { get; set; }
 
         [JsonProperty("progress")]
-        public int Progress { get; set; }
+        public double Progress { get; set; }
 
         [JsonProperty("achievement")]
         public string Name { get; set; }
