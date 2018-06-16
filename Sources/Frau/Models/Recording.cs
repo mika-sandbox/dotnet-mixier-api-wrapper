@@ -34,7 +34,7 @@ namespace Frau.Models
         public uint TypeId { get; set; }
 
         [JsonProperty("duration")]
-        public int Duration { get; set; }
+        public double Duration { get; set; }
 
         [JsonProperty("seen")]
         public bool? Seen { get; set; }

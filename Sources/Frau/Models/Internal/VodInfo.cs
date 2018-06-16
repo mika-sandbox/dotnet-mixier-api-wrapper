@@ -11,7 +11,7 @@ namespace Frau.Models.Internal
         public uint Height { get; set; }
 
         [JsonProperty("Fps")]
-        public int? Fps { get; set; }
+        public double? Fps { get; set; }
 
         [JsonProperty("Bitrate")]
         public uint? Bitrate { get; set; }
