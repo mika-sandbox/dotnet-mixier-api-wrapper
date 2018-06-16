@@ -17,6 +17,10 @@ await mixerClient.Interactive.Games.OwnedAsync(user);
 // GET           /oauth/clients/{client}
 await mixerClient.OAuth.Clients.ShowAsync(client);
 
+// When parameter in URL
+// GET           /users/{userId}/avatar
+await mixerClient.Users.AvatarAsync();
+
 // As an exception, if there is a better name than a intuitive name, I use one.
 // "Revoke" authorization
 // DELETE        /oauth/authorized/{client}
