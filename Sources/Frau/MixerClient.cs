@@ -46,6 +46,7 @@ namespace Frau
         public AuthorizationClient OAuth { get; }
         public FrontendVersionsClient FrontendVersions { get; }
         public RecordingsClient Recordings { get; }
+        public RedeemablesClient Redeemables { get; }
         public UsersClient Users { get; }
 
         public MixerClient(string clientId, string clientSecret)
@@ -63,6 +64,7 @@ namespace Frau
             FrontendVersions = new FrontendVersionsClient(this);
             OAuth = new AuthorizationClient(this);
             Recordings = new RecordingsClient(this);
+            Redeemables = new RedeemablesClient(this);
             Users = new UsersClient(this);
         }
 
