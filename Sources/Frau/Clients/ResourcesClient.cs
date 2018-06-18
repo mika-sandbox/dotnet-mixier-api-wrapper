@@ -7,7 +7,7 @@ namespace Frau.Clients
 {
     public class ResourcesClient : ApiClient
     {
-        protected ResourcesClient(MixerClient client) : base(client) { }
+        public ResourcesClient(MixerClient client) : base(client) { }
 
         public async Task<Resource> RetrievesAsync(uint resource)
         {
