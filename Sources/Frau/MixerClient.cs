@@ -50,6 +50,7 @@ namespace Frau
         public RedeemablesClient Redeemables { get; }
         public ResourcesClient Resources { get; }
         public SeenClient Seen { get; }
+        public TranscodesClient Transcodes { get; }
         public UsersClient Users { get; }
 
         public MixerClient(string clientId, string clientSecret)
@@ -71,6 +72,7 @@ namespace Frau
             Redeemables = new RedeemablesClient(this);
             Resources = new ResourcesClient(this);
             Seen = new SeenClient(this);
+            Transcodes = new TranscodesClient(this);
             Users = new UsersClient(this);
         }
 
