@@ -9,15 +9,19 @@ using Frau.Models;
 using Frau.Models.Bucket;
 using Frau.Models.Flow;
 
+using Newtonsoft.Json.Linq;
+
 namespace Frau.Clients
 {
     public class ChannelsClient : ApiClient
     {
         public AnalyticsClient Analytics { get; }
+        public PartnershipClient Partnership { get; }
 
         public ChannelsClient(MixerClient client) : base(client)
         {
             Analytics = new AnalyticsClient(client);
+            Partnership = new PartnershipClient(client);
         }
 
         public async Task<Pagenator<List<ChannelExtended>>> SearchAsync(string q, string scope, SearchParameter searchParameter = null)
@@ -105,9 +109,97 @@ namespace Frau.Clients
             await MixerClient.GetAsync<object>($"/channels/{channelId}/hostee");
         }
 
+        public async Task<Channel> StartHostAsync(uint channelId, uint hostId)
+        {
+            var parameters = new List<KeyValuePair<string, object>>
+            {
+                new KeyValuePair<string, object>("id", hostId)
+            };
+
+            return await MixerClient.PutAsync<Channel>($"/channels/{channelId}/hostee", MediaType.Json, parameters);
+        }
+
+        public async Task StopHostAsync(uint channelId)
+        {
+            await MixerClient.DeleteAsync($"/channels/{channelId}/hostee", MediaType.NoContent);
+        }
+
         public async Task<List<ChannelAdvanced>> HostersAsync(uint channelId)
         {
             return await MixerClient.GetAsync<List<ChannelAdvanced>>($"/channels/{channelId}/hosters");
+        }
+
+        public async Task<ChannelPreferences> PreferencesAsync(uint channelId)
+        {
+            return await MixerClient.GetAsync<ChannelPreferences>($"/channels/{channelId}/preferences", null, false);
+        }
+
+        public async Task<ChannelPreferences> UpdatePreferencesAsync(uint channelId, ChannelPreferences channelPreferences)
+        {
+            return await MixerClient.PostAsync<ChannelPreferences>($"/channels/{channelId}/preferences", MediaType.Json, channelPreferences);
+        }
+
+        public async Task<List<Channel>> RelatedAsync(uint channelId, uint count)
+        {
+            var parameters = new List<KeyValuePair<string, string>>
+            {
+                new KeyValuePair<string, string>("count", count.ToString())
+            };
+
+            return await MixerClient.GetAsync<List<Channel>>($"/channels/{channelId}/related", parameters, false);
+        }
+
+        public async Task<string> StreamKeyAsync(uint channelId)
+        {
+            var response = await MixerClient.GetAsync<object>($"/channels/{channelId}/streamKey") as JObject;
+            return (string) response?["streamKey"];
+        }
+
+        public async Task<RelationShip> RelationshipAsync(uint channelId, uint user)
+        {
+            var parameters = new List<KeyValuePair<string, string>>
+            {
+                new KeyValuePair<string, string>("user", user.ToString())
+            };
+
+            return await MixerClient.GetAsync<RelationShip>($"/channels/{channelId}/relationship", parameters, false);
+        }
+
+        public async Task<ExpandedChannel> UpdateThumbnailAsync(uint channelId, Stream thumbnail)
+        {
+            var parameters = new List<KeyValuePair<string, object>>
+            {
+                new KeyValuePair<string, object>("thumbnai", thumbnail)
+            };
+
+            return await MixerClient.PostAsync<ExpandedChannel>($"/channels/{channelId}/thumbnail", MediaType.Multipart, parameters);
+        }
+
+        public async Task<Pagenator<List<UserWithGroups>>> UsersAsync(uint channelId, SearchParameter searchParameter = null)
+        {
+            var parameters = new List<KeyValuePair<string, string>>();
+            searchParameter?.AddTo(parameters);
+
+            return await MixerClient.GetAsync<Pagenator<List<UserWithGroups>>>($"/channels/{channelId}/users", parameters, false);
+        }
+
+        public async Task<Pagenator<List<UserWithGroups>>> UsersByRoleAsync(uint channelId, string role, SearchParameter searchParameter = null)
+        {
+            var parameters = new List<KeyValuePair<string, string>>();
+            searchParameter?.AddTo(parameters);
+
+            return await MixerClient.GetAsync<Pagenator<List<UserWithGroups>>>($"/channels/{channelId}/users/{role}", parameters, false);
+        }
+
+        public async Task<UserWithGroups> UpdateUserRoleAsync(uint channelId, uint userId, List<string> add = null, List<string> remove = null)
+        {
+            var parameters = new List<KeyValuePair<string, object>>();
+            if (add != null)
+                parameters.Add(new KeyValuePair<string, object>("add", add));
+            if (remove != null)
+                parameters.Add(new KeyValuePair<string, object>("remove", remove));
+
+            return await MixerClient.PatchAsync<UserWithGroups>($"/channels/{channelId}/users/{userId}", MediaType.Json, parameters);
         }
     }
 }
