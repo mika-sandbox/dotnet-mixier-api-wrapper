@@ -9,7 +9,9 @@ namespace Frau.Clients
 {
     public class SeenClient : ApiClient
     {
-        public SeenClient(MixerClient client) : base(client) { }
+        public SeenClient(MixerClient client) : base(client)
+        {
+        }
 
         public async Task<bool> IsSeenAsync(string bucket, string thing, uint userId)
         {
@@ -18,8 +20,8 @@ namespace Frau.Clients
                 new KeyValuePair<string, string>("user", userId.ToString())
             };
 
-            var response = (await MixerClient.GetAsync<object>($"/seen/{bucket}/{thing}", parameters)).ToString();
-            return (bool) JObject.Parse(response)["seen"];
+            var response = await MixerClient.GetAsync<object>($"/seen/{bucket}/{thing}", parameters) as JObject;
+            return (bool) response?["seen"];
         }
 
         public async Task MarkAsSeen(string bucket, string thing, uint userId)
