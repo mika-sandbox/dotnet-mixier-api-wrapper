@@ -16,11 +16,13 @@ namespace Frau.Clients
     public class ChannelsClient : ApiClient
     {
         public AnalyticsClient Analytics { get; }
+        public DiscordClient Discord { get; }
         public PartnershipClient Partnership { get; }
 
         public ChannelsClient(MixerClient client) : base(client)
         {
             Analytics = new AnalyticsClient(client);
+            Discord = new DiscordClient(client);
             Partnership = new PartnershipClient(client);
         }
 
@@ -200,6 +202,16 @@ namespace Frau.Clients
                 parameters.Add(new KeyValuePair<string, object>("remove", remove));
 
             return await MixerClient.PatchAsync<UserWithGroups>($"/channels/{channelId}/users/{userId}", MediaType.Json, parameters);
+        }
+
+        public async Task<DiscordBot> DiscordAsync(uint channelId)
+        {
+            return await MixerClient.GetAsync<DiscordBot>($"/channels/{channelId}/discord", null, false);
+        }
+
+        public async Task<DiscordBot> UpdateDiscordAsync(uint channelId, DiscordBot discordBot)
+        {
+            return await MixerClient.PutAsync<DiscordBot>($"/channels/{channelId}/discord", MediaType.Json, discordBot);
         }
     }
 }
