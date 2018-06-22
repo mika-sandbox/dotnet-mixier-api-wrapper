@@ -10,9 +10,7 @@ namespace Frau.Clients.Channels
 {
     public class DiscordClient : ApiClient
     {
-        public DiscordClient(MixerClient client) : base(client)
-        {
-        }
+        public DiscordClient(MixerClient client) : base(client) { }
 
         public async Task<List<DiscordChannel>> ChannelsAsync(uint channelId)
         {

@@ -9,9 +9,7 @@ namespace Frau.Clients
 {
     public class SeenClient : ApiClient
     {
-        public SeenClient(MixerClient client) : base(client)
-        {
-        }
+        public SeenClient(MixerClient client) : base(client) { }
 
         public async Task<bool> IsSeenAsync(string bucket, string thing, uint userId)
         {
