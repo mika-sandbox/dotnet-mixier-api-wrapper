@@ -18,12 +18,14 @@ namespace Frau.Clients
         public AnalyticsClient Analytics { get; }
         public DiscordClient Discord { get; }
         public PartnershipClient Partnership { get; }
+        public Channels.TranscodesClient Transcodes { get; }
 
         public ChannelsClient(MixerClient client) : base(client)
         {
             Analytics = new AnalyticsClient(client);
             Discord = new DiscordClient(client);
             Partnership = new PartnershipClient(client);
+            Transcodes = new Channels.TranscodesClient(this);
         }
 
         public async Task<Pagenator<List<ChannelExtended>>> SearchAsync(string q, string scope, SearchParameter searchParameter = null)
@@ -212,6 +214,14 @@ namespace Frau.Clients
         public async Task<DiscordBot> UpdateDiscordAsync(uint channelId, DiscordBot discordBot)
         {
             return await MixerClient.PutAsync<DiscordBot>($"/channels/{channelId}/discord", MediaType.Json, discordBot);
+        }
+
+        public async Task<Pagenator<List<Recording>>> RecordingsAsync(uint channelId, SearchParameter searchParameter = null)
+        {
+            var parameters = new List<KeyValuePair<string, string>>();
+            searchParameter?.AddTo(parameters);
+
+            return await MixerClient.GetAsync<Pagenator<List<Recording>>>($"/channels/{channelId}/recordings", parameters, false);
         }
     }
 }
