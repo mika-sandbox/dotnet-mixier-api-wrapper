@@ -38,7 +38,7 @@ namespace Frau.Clients.Channels
                 new KeyValuePair<string, object>("user", user)
             };
 
-            var response = await MixerClient.PostAsync<object>($"/channels/{channel}/discord/invite", MediaType.Json, parameters) as JObject;
+            var response = await MixerClient.PostAsync<object>($"/channels/{channel}/discord/invite", MediaType.Json, parameters, false) as JObject;
             return (string) response?["redirectUri"];
         }
     }
