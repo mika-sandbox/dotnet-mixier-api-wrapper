@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 
@@ -222,6 +223,37 @@ namespace Frau.Clients
             searchParameter?.AddTo(parameters);
 
             return await MixerClient.GetAsync<Pagenator<List<Recording>>>($"/channels/{channelId}/recordings", parameters, false);
+        }
+
+        public async Task<Confetti> ConfettiAsync(uint channelId)
+        {
+            return await MixerClient.GetAsync<Confetti>($"/channels/{channelId}/confetti", null, false);
+        }
+
+        public async Task<Stream> BannerAsync(uint channelId)
+        {
+            // returns 302 Redirect, Why?
+            return await MixerClient.GetAsync<Stream>($"/channels/{channelId}/banner", null, false);
+        }
+
+        [Obsolete("Invalid documentation, please contact to Microsoft/Mixer.")]
+        public async Task<Stream> UpdateBannerAsync(uint channelId, string banner)
+        {
+            var parameters = new List<KeyValuePair<string, object>>
+            {
+                new KeyValuePair<string, object>("banner", banner)
+            };
+            return await MixerClient.PostAsync<Stream>($"/channel/{channelId}/banner", MediaType.Json, parameters);
+        }
+
+        public async Task DeleteBannerAsync(uint channelId)
+        {
+            await MixerClient.DeleteAsync($"/channels/{channelId}/banner", MediaType.NoContent);
+        }
+
+        public async Task<Broadcast> BroadcastAsync(uint channelId)
+        {
+            return await MixerClient.GetAsync<Broadcast>($"/channels/{channelId}/broadcast", null, false);
         }
     }
 }

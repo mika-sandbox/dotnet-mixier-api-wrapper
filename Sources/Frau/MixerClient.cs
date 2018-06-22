@@ -60,6 +60,7 @@ namespace Frau
             ClientSecret = clientSecret;
 
             _httpClient = new HttpClient();
+            _httpClient.DefaultRequestHeaders.Add("Client-ID", clientId);
             DeserializeObject = typeof(JsonConvert).GetMethods(BindingFlags.Public | BindingFlags.Static)
                                                    .Where(w => w.Name == "DeserializeObject")
                                                    .First(w => w.IsGenericMethod && w.IsGenericMethodDefinition);
