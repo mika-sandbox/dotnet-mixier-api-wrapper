@@ -25,7 +25,7 @@ namespace Frau.Clients
             Analytics = new AnalyticsClient(client);
             Discord = new DiscordClient(client);
             Partnership = new PartnershipClient(client);
-            Transcodes = new Channels.TranscodesClient(this);
+            Transcodes = new Channels.TranscodesClient(client);
         }
 
         public async Task<Pagenator<List<ChannelExtended>>> SearchAsync(string q, string scope, SearchParameter searchParameter = null)
