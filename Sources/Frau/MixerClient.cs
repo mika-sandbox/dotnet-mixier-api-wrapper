@@ -48,6 +48,7 @@ namespace Frau
         public ConfettiClient Confetti { get; }
         public CostreamsClient Costreams { get; }
         public DelveClient Delve { get; }
+        public FrontendConfigClient FrontendConfig { get; }
         public FrontendVersionsClient FrontendVersions { get; }
         public InvoicesClient Invoices { get; }
         public AuthorizationClient OAuth { get; }
@@ -76,6 +77,7 @@ namespace Frau
             Confetti = new ConfettiClient(this);
             Costreams = new CostreamsClient(this);
             Delve = new DelveClient(this);
+            FrontendConfig = new FrontendConfigClient(this);
             FrontendVersions = new FrontendVersionsClient(this);
             Invoices = new InvoicesClient(this);
             OAuth = new AuthorizationClient(this);
