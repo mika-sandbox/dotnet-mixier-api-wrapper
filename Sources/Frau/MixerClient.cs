@@ -44,6 +44,7 @@ namespace Frau
         public AchievementsClient Achievements { get; }
         public BroadcastsClient Broadcasts { get; }
         public ChannelsClient Channels { get; }
+        public ChatsClient Chats { get; }
         public FrontendVersionsClient FrontendVersions { get; }
         public InvoicesClient Invoices { get; }
         public AuthorizationClient OAuth { get; }
@@ -68,6 +69,7 @@ namespace Frau
             Achievements = new AchievementsClient(this);
             Broadcasts = new BroadcastsClient(this);
             Channels = new ChannelsClient(this);
+            Chats = new ChatsClient(this);
             FrontendVersions = new FrontendVersionsClient(this);
             Invoices = new InvoicesClient(this);
             OAuth = new AuthorizationClient(this);
