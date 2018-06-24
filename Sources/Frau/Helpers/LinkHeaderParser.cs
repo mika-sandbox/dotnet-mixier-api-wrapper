@@ -5,7 +5,7 @@ using Frau.Models.Internal;
 
 namespace Frau.Helpers
 {
-    internal class LinkHeaderParser
+    internal static class LinkHeaderParser
     {
         public static List<WebLink> Parse(string linkHeader)
         {
