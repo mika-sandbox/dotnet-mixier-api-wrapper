@@ -45,6 +45,7 @@ namespace Frau
         public BroadcastsClient Broadcasts { get; }
         public ChannelsClient Channels { get; }
         public ChatsClient Chats { get; }
+        public ConfettiClient Confetti { get; }
         public FrontendVersionsClient FrontendVersions { get; }
         public InvoicesClient Invoices { get; }
         public AuthorizationClient OAuth { get; }
@@ -70,6 +71,7 @@ namespace Frau
             Broadcasts = new BroadcastsClient(this);
             Channels = new ChannelsClient(this);
             Chats = new ChatsClient(this);
+            Confetti = new ConfettiClient(this);
             FrontendVersions = new FrontendVersionsClient(this);
             Invoices = new InvoicesClient(this);
             OAuth = new AuthorizationClient(this);
