@@ -53,6 +53,7 @@ namespace Frau
         public DelveClient Delve { get; }
         public FrontendConfigClient FrontendConfig { get; }
         public FrontendVersionsClient FrontendVersions { get; }
+        public HooksClient Hooks { get; }
         public InvoicesClient Invoices { get; }
         public AuthorizationClient OAuth { get; }
         public RecordingsClient Recordings { get; }
@@ -82,6 +83,7 @@ namespace Frau
             Delve = new DelveClient(this);
             FrontendConfig = new FrontendConfigClient(this);
             FrontendVersions = new FrontendVersionsClient(this);
+            Hooks = new HooksClient(this);
             Invoices = new InvoicesClient(this);
             OAuth = new AuthorizationClient(this);
             Recordings = new RecordingsClient(this);
