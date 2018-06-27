@@ -266,8 +266,7 @@ namespace Frau
         private async Task<T> ProcessResponseWithHeader<T>(HttpResponseMessage response) where T : class
         {
             // Create Pagenator instance
-            var pagenator = Activator.CreateInstance<T>() as IPagenator;
-            if (pagenator == null)
+            if (!(Activator.CreateInstance<T>() is IPagenator pagenator))
                 throw new NullReferenceException();
 
             // Deserialize JSON object
