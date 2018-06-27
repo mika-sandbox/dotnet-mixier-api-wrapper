@@ -59,7 +59,7 @@ namespace Frau
         public TranscodesClient Transcodes { get; }
         public UsersClient Users { get; }
 
-        public MixerClient(string clientId, string clientSecret)
+        public MixerClient(string clientId, string clientSecret = null)
         {
             ClientId = clientId;
             ClientSecret = clientSecret;
