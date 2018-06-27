@@ -179,5 +179,21 @@ namespace Frau.Clients
         {
             return await MixerClient.GetAsync<List<TeamMembershipExpanded>>($"/users/{userId}/teams");
         }
+
+        public async Task<UserWithChannelExtended> DetailsAsync(uint userId)
+        {
+            return await MixerClient.GetAsync<UserWithChannelExtended>($"/users/{userId}/details", null, false);
+        }
+
+        public async Task<RecentlyViewedChannels> RecentlyViewedChannels(uint userId, uint? page = null, uint? limit = null)
+        {
+            var parameters = new List<KeyValuePair<string, string>>();
+            if (page.HasValue)
+                parameters.Add(new KeyValuePair<string, string>("page", page.Value.ToString()));
+            if (limit.HasValue)
+                parameters.Add(new KeyValuePair<string, string>("limit", limit.Value.ToString()));
+
+            return await MixerClient.GetAsync<RecentlyViewedChannels>($"/users/{userId}/recentlyViewedChannels", parameters, false);
+        }
     }
 }
