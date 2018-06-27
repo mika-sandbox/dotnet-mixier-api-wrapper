@@ -20,6 +20,9 @@ using Newtonsoft.Json;
 
 using Parameters = System.Collections.Generic.List<System.Collections.Generic.KeyValuePair<string, object>>;
 
+// ReSharper disable UnusedAutoPropertyAccessor.Global
+// ReSharper disable MemberCanBePrivate.Global
+
 namespace Frau
 {
     // ReSharper disable once ClassNeverInstantiated.Global
@@ -285,7 +288,7 @@ namespace Frau
             // Parse "X-Total-Count" header
             var totalCount = response.Headers.GetValues("x-total-count").FirstOrDefault();
             pagenator.Total = string.IsNullOrWhiteSpace(totalCount) ? 0 : uint.Parse(totalCount);
-            return pagenator as T;
+            return (T) pagenator;
         }
     }
 }
