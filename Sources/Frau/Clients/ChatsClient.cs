@@ -6,6 +6,8 @@ using Frau.Models;
 using Frau.Models.Bucket;
 using Frau.Models.Flow;
 
+// ReSharper disable UnusedAutoPropertyAccessor.Global
+
 namespace Frau.Clients
 {
     public class ChatsClient : ApiClient

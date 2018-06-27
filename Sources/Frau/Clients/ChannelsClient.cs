@@ -12,6 +12,8 @@ using Frau.Models.Flow;
 
 using Newtonsoft.Json.Linq;
 
+// ReSharper disable UnusedAutoPropertyAccessor.Global
+
 namespace Frau.Clients
 {
     public class ChannelsClient : ApiClient

@@ -13,6 +13,8 @@ using Frau.Models.Flow;
 using FlowedFrontendVersion = Frau.Models.Flow.FrontendVersion;
 using OAuthClient = Frau.Clients.Users.OAuthClient;
 
+// ReSharper disable UnusedAutoPropertyAccessor.Global
+
 namespace Frau.Clients
 {
     public class UsersClient : ApiClient

@@ -7,6 +7,8 @@ using Frau.Extensions;
 using Frau.Models;
 using Frau.Models.Flow;
 
+// ReSharper disable UnusedAutoPropertyAccessor.Global
+
 namespace Frau.Clients
 {
     public class AuthorizationClient : ApiClient

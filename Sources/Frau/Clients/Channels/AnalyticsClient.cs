@@ -1,5 +1,7 @@
 ﻿using Frau.Clients.Channels.Analytics;
 
+// ReSharper disable UnusedAutoPropertyAccessor.Global
+
 namespace Frau.Clients.Channels
 {
     public class AnalyticsClient : ApiClient

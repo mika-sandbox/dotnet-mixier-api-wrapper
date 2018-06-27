@@ -3,6 +3,8 @@
 using Frau.Enum;
 using Frau.Models;
 
+// ReSharper disable UnusedAutoPropertyAccessor.Global
+
 namespace Frau.Clients
 {
     public class CostreamsClient : ApiClient
